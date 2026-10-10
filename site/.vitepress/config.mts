@@ -6,6 +6,7 @@ export default defineConfig({
   description: 'VRChatの改変アイテムを、探すところからUnityへの導入まで。Usatrot WorksのUnity Editor拡張。',
   lang: 'ja',
   cleanUrls: true,
+  appearance: false,
   head: [['link', { rel: 'icon', href: '/KaihenShelf/shelf.svg', type: 'image/svg+xml' }]],
   locales: {
     root: { label: '日本語', lang: 'ja', themeConfig: {

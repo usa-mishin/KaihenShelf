@@ -1,6 +1,6 @@
 ---
 layout: page
 sidebar: false
-title: VRChatの改変アイテムを、ひとつの棚に。
+title: VRChatの改変アイテムをUnityで管理
 ---
 <HomePage />
