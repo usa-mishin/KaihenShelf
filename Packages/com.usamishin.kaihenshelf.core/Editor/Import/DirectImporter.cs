@@ -43,6 +43,7 @@ namespace KaihenShelf
         }
         public static DirectImportPlan Plan(DirectPackageStage stage, string target)
         {
+            BatchPackageStage.ResolveChoices(stage);
             var plan = new DirectImportPlan { stage = stage };
             foreach (var asset in stage.assets)
             {

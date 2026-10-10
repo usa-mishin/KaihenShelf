@@ -15,7 +15,7 @@ namespace KaihenShelf
         static CancellationTokenSource cancellation;
         static Prepared waiting;
         public static string Status { get; private set; } = "";
-        public static bool Busy { get { return preparation != null || waiting != null || DirectImportWindow.Pending || BatchPreviewRefresh.Pending; } }
+        public static bool Busy { get { return preparation != null || waiting != null || BatchConflictWindow.Pending || DirectImportWindow.Pending || BatchPreviewRefresh.Pending; } }
         internal static void BatchPreviewFinished(bool success)
         { Status = Status.Replace("プレビューを更新しています。", success ? "プレビュー更新完了。" : "プレビュー更新に失敗しました。Consoleを確認してください。"); }
         public static bool CanCancelPreparation { get { return preparation != null || waiting != null; } }
@@ -52,7 +52,7 @@ namespace KaihenShelf
             preparation = Task.Run(() =>
             {
                 if (!string.IsNullOrEmpty(target)) SafePaths.Relative(target);
-                var stage = BatchPackageStage.Prepare(paths, cache, token);
+                var stage = BatchPackageStage.Prepare(paths, cache, token, allowChoices: true);
                 if (token.IsCancellationRequested) { stage.Cleanup(); token.ThrowIfCancellationRequested(); }
                 return new Prepared { stage = stage, record = new ImportRecord { itemId = itemId, productName = productName, target = "Assets/" + target } };
             }, token);
@@ -79,6 +79,7 @@ namespace KaihenShelf
         }
         public static void CancelPreparation() { if (!CanCancelPreparation) return; cancellation?.Cancel(); waiting?.stage.Cleanup(); waiting = null; Status = "準備を取り消しました。"; }
         public static void DirectConfirmationClosed() { Status = "インポートを取り消しました。"; }
+        internal static void ConflictsResolved() { Status = "インポート内容と配置先を確認してください。"; }
         public static void DirectNothingToImport() { Status = "すべてのアセットが導入済みです。"; }
         static void Update()
         {
@@ -98,8 +99,16 @@ namespace KaihenShelf
             var ready = waiting; waiting = null;
             try
             {
-                DirectImportWindow.Open(ready.stage, ready.record);
-                Status = "インポート内容と配置先を確認してください。";
+                if (ready.stage.batchConflicts.Count > 0)
+                {
+                    BatchConflictWindow.Open(ready.stage, ready.record);
+                    Status = "共通ファイルの内容が異なります。採用するパッケージを選択してください。";
+                }
+                else
+                {
+                    DirectImportWindow.Open(ready.stage, ready.record);
+                    Status = "インポート内容と配置先を確認してください。";
+                }
             }
             catch (Exception ex) { ready.stage.Cleanup(); Status = "エラー: " + ex.Message; }
         }

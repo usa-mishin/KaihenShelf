@@ -33,7 +33,8 @@ namespace KaihenShelf
         {
             value = value.Normalize(NormalizationForm.FormKC);
             if (MochiFitterRelease.IsMatch(value)) return "mochifitter";
-            return Regex.Replace(VersionSuffix.Replace(value, ""), @"[^\p{L}\p{N}]", "").ToLowerInvariant();
+            // Plus signs can distinguish separate volumes (Plus+, Plus++, ...).
+            return Regex.Replace(VersionSuffix.Replace(value, ""), @"[^\p{L}\p{N}+]", "").ToLowerInvariant();
         }
         static Version ReadVersion(string value, out string label)
         {

@@ -40,6 +40,8 @@ Click **インポート**, review the destination and files, then click **Import
 
 KaihenShelf places the combined files with their GUIDs preserved before Unity reads them. It cannot detect every dependency or fixed-path requirement. Follow the asset creator's instructions and install required shaders and SDKs first.
 
+If shared files have different contents, choose which package to use for each file. The chosen settings apply to every asset referencing that file. After making all choices, click **インポート内容を確認** (Review import contents) to proceed to the regular import confirmation.
+
 Texture folders can be imported with their hierarchy preserved; only supported texture formats are included.
 
 ## After import

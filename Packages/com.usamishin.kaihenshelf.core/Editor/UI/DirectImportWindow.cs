@@ -22,14 +22,15 @@ namespace KaihenShelf
         public static bool Pending { get { return Resources.FindObjectsOfTypeAll<DirectImportWindow>().Any(x => x.plan != null && !x.finished); } }
         public static void Open(DirectPackageStage stage, ImportRecord import)
         {
+            var preparedPlan = DirectImporter.Plan(stage, import.target.Substring(7));
+            var item = LocalStore.Load().items.FirstOrDefault(x => x.id == import.itemId);
+            if (item != null)
+                preparedPlan.thumbnailProductFolder = FolderThumbnailRules.ImportRoot(preparedPlan.entries.Where(x => !x.asset.folder && x.conflict.Length == 0).Select(x => x.destination).ToArray(),
+                    import.target, item.shop, stage.sources.Count > 0 ? import.productName : stage.texturesOnly ? Path.GetFileName(import.source) : Path.GetFileNameWithoutExtension(import.source));
             var window = GetWindowWithRect<DirectImportWindow>(new Rect(100, 100, 500, 550), true, "Import Unity Package");
             window.titleContent = new GUIContent(stage.texturesOnly ? "Import Textures" : "Import Unity Package");
             window.minSize = new Vector2(350, 350);
-            window.plan = DirectImporter.Plan(stage, import.target.Substring(7));
-            var item = LocalStore.Load().items.FirstOrDefault(x => x.id == import.itemId);
-            if (item != null)
-                window.plan.thumbnailProductFolder = FolderThumbnailRules.ImportRoot(window.plan.entries.Where(x => !x.asset.folder && x.conflict.Length == 0).Select(x => x.destination).ToArray(),
-                    import.target, item.shop, stage.sources.Count > 0 ? import.productName : stage.texturesOnly ? Path.GetFileName(import.source) : Path.GetFileNameWithoutExtension(import.source));
+            window.plan = preparedPlan;
             window.record = import; window.result = ""; window.finished = false;
             window.treeState = new TreeViewState();
             window.tree = new ImportTree(window.treeState, window.plan);

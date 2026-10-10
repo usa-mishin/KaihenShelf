@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.1.143
+
+- Added a package choice dialog for conflicting shared files in batch imports. Merge compatible shared folders and distinguish separate volumes with different numbers of plus signs.
+
 ## 0.1.142
 
 - Automatically load products after consent. Updated the quick-start and setup guides, with database settings guidance when loading fails.

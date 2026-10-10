@@ -57,6 +57,17 @@ internal static class PackageFileCardTests
             Check(cards.Count == 2 && cards[0].version == "v1.10" && cards[0].older.Single().oldVersion);
             Check(cards[0].older[0].version == "v1.9" && cards[1].older.Count == 0);
         });
+        test("plus signs distinguish volumes while versions within a volume still group", () =>
+        {
+            var cards = PackageFileCards.Build(new[] {
+                File("PixcelBootPlus+_v1.01.unitypackage"), File("PixcelBootPlus+_v1.02.unitypackage"),
+                File("PixcelBootPlus++_v1.00.unitypackage"), File("PixcelBootPlus+++_v1.00.unitypackage"),
+                File("PixcelBootPlus＋＋_v1.01.unitypackage") });
+            Check(cards.Count == 3 && cards.All(x => !x.oldVersion));
+            Check(cards.Single(x => x.version == "v1.02").older.Single().version == "v1.01");
+            Check(cards.Single(x => x.file.relative.Contains("＋＋")).older.Single().version == "v1.00");
+            Check(cards.Single(x => x.file.relative.Contains("+++")).older.Count == 0);
+        });
         test("package cards infer parent versions and suppress redundant duplicate badges", () =>
         {
             var cards = PackageFileCards.Build(new[] { File("Download_v1.0/Dress.unitypackage"), File("Download_v2.0/Dress.unitypackage") });

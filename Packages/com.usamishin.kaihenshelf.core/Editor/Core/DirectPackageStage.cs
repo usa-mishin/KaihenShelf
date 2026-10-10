@@ -9,6 +9,17 @@ using System.Threading;
 
 namespace KaihenShelf
 {
+    [Serializable] public sealed class BatchAssetVariant
+    {
+        public string source;
+        public StagedAsset asset;
+    }
+    [Serializable] public sealed class BatchAssetConflict
+    {
+        public string guid, path;
+        public List<BatchAssetVariant> variants = new List<BatchAssetVariant>();
+        public int selected = -1;
+    }
     [Serializable] public sealed class BatchPackageSource
     {
         public string path;
@@ -17,6 +28,7 @@ namespace KaihenShelf
     [Serializable] public sealed class StagedAsset
     {
         public string guid, path, assetHash, metaHash;
+        public string payloadKey;
         public bool folder;
         public long bytes;
     }
@@ -29,7 +41,8 @@ namespace KaihenShelf
         public bool preserveForRecovery;
         public List<StagedAsset> assets = new List<StagedAsset>();
         public List<BatchPackageSource> sources = new List<BatchPackageSource>();
-        public string Payload(StagedAsset asset, bool meta) { return Path.Combine(directory, asset.guid + (meta ? ".meta" : ".asset")); }
+        public List<BatchAssetConflict> batchConflicts = new List<BatchAssetConflict>();
+        public string Payload(StagedAsset asset, bool meta) { return Path.Combine(directory, (string.IsNullOrEmpty(asset.payloadKey) ? asset.guid : asset.payloadKey) + (meta ? ".meta" : ".asset")); }
         public const long ReserveBytes = 2L * 1024 * 1024 * 1024;
         public static void RequireSpace(string path, long required)
         {
