@@ -1,0 +1,20 @@
+{
+  "name": "com.usamishin.kaihenshelf.core",
+  "version": "0.1.140",
+  "displayName": "KaihenShelf",
+  "description": "BOOTH Library Manager連携・非公式。Windows用のローカル商品整理とUnityPackage導入支援。",
+  "unity": "2022.3",
+  "author": { "name": "Usatrot Works", "email": "usamishin.art@gmail.com", "url": "https://usatrot-works.booth.pm/" },
+  "url": "https://github.com/usa-mishin/KaihenShelf/releases/download/v0.1.140/com.usamishin.kaihenshelf.core-0.1.140.zip",
+  "documentationUrl": "https://usa-mishin.github.io/KaihenShelf/guide/",
+  "changelogUrl": "https://usa-mishin.github.io/KaihenShelf/changelog",
+  "bugs": { "url": "https://github.com/usa-mishin/KaihenShelf/issues" },
+  "legacyFolders": {
+    "Assets/KaihenShelf": "62f8b0ef4e3c95b0f7ca191a99119f00",
+    "Assets/VrcKaihenLibrary": "62f8b0ef4e3c95b0f7ca191a99119f00"
+  },
+  "legacyPackages": ["com.usamishin.vrckaihenlibrary.core"],
+  "license": "MIT",
+  "keywords": ["editor", "library", "vrchat"],
+  "vpmDependencies": {}
+}

@@ -1,0 +1,25 @@
+[Ll]ibrary/
+[Tt]emp/
+[Oo]bj/
+[Bb]in/
+Logs/
+UserSettings/
+artifacts/
+.vs/
+*.csproj.user
+*.sln
+*.slnx
+!tools/**/*.csproj
+!Tests/**/*.csproj
+*.unitypackage
+*.zip
+node_modules/
+site/.vitepress/cache/
+site/.vitepress/dist/
+site/public/index.json
+site/policy.md
+# Local development notes and project data are not release sources.
+PROJECT-HANDOFF-COMPLETE.md
+docs/DEVELOPMENT.md
+docs/VERIFICATION.md
+docs/REQUIREMENTS.md

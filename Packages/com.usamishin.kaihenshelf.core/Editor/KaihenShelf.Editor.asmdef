@@ -1,0 +1,7 @@
+{
+  "name": "KaihenShelf.Editor",
+  "rootNamespace": "KaihenShelf",
+  "includePlatforms": ["Editor"],
+  "autoReferenced": true,
+  "allowUnsafeCode": false
+}

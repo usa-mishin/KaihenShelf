@@ -1,0 +1,13 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>netstandard2.1</TargetFramework><LangVersion>9.0</LangVersion><Nullable>disable</Nullable><EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+    <UnityEditorRoot Condition="'$(UnityEditorRoot)' == ''">C:/Program Files/Unity/Hub/Editor/2022.3.22f1/Editor</UnityEditorRoot>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="../../Packages/com.usamishin.kaihenshelf.core/Editor/**/*.cs" />
+    <Compile Include="../../scripts/ImportStressValidation.cs" Link="ImportStressValidation.cs" Condition="Exists('../../scripts/ImportStressValidation.cs')" />
+    <Compile Include="../../scripts/UnityLiveValidation.cs.txt" Link="UnityLiveValidation.cs" Condition="Exists('../../scripts/UnityLiveValidation.cs.txt')" />
+    <Compile Include="../../scripts/UnityThumbnailSmoke.cs.txt" Link="UnityThumbnailSmoke.cs" Condition="Exists('../../scripts/UnityThumbnailSmoke.cs.txt')" />
+    <Reference Include="$(UnityEditorRoot)/Data/Managed/UnityEngine/*.dll" />
+  </ItemGroup>
+</Project>

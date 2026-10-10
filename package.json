@@ -1,0 +1,13 @@
+{
+  "name": "kaihenshelf-site",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vitepress dev site --host 127.0.0.1",
+    "build": "node scripts/sync-site.mjs && vitepress build site",
+    "preview": "vitepress preview site --host 127.0.0.1",
+    "test:listing": "node --test Tests/Distribution/listing.test.mjs"
+  },
+  "devDependencies": { "vitepress": "1.6.4" },
+  "overrides": { "vite": "6.4.4" }
+}
