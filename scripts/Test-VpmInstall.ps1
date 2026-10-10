@@ -12,7 +12,7 @@ Expand-Archive -LiteralPath (Join-Path $root "artifacts/$id-$($manifest.version)
 & $VrcGet user-package add $source
 if ($LASTEXITCODE -ne 0) { throw 'Temporary package registration failed' }
 try {
-  foreach ($case in @('fresh','legacy','renamed')) {
+  foreach ($case in @('fresh','legacy','current','renamed')) {
     $project = Join-Path $testRoot $case
     New-Item -ItemType Directory -Path "$project/Assets/Keep", "$project/Packages", "$project/ProjectSettings", "$project/UserSettings/KaihenShelf" -Force | Out-Null
     Copy-Item (Join-Path $root 'Packages/manifest.json') "$project/Packages/manifest.json"
@@ -20,7 +20,7 @@ try {
     Set-Content "$project/Assets/Keep/product.txt" 'keep product unchanged'
     Set-Content "$project/UserSettings/KaihenShelf/history.json" '{"sentinel":"keep history"}'
     if ($case -ne 'fresh') {
-      $legacy = if ($case -eq 'legacy') { "$project/Assets/VrcKaihenLibrary" } else { "$project/Assets/RenamedTool" }
+      $legacy = if ($case -eq 'legacy') { "$project/Assets/VrcKaihenLibrary" } elseif ($case -eq 'current') { "$project/Assets/KaihenShelf" } else { "$project/Assets/RenamedTool" }
       New-Item -ItemType Directory -Path $legacy -Force | Out-Null
       Set-Content "$legacy/obsolete.txt" 'old tool'
       Copy-Item (Join-Path $root "Packages/$id.meta") ($legacy + '.meta')
@@ -35,13 +35,41 @@ try {
   }
   # Compile an installed VPM package in an isolated Unity project; no product import or user consent changes.
   $project = Join-Path $testRoot 'fresh'
+  New-Item -ItemType Directory -Path "$project/Assets/Editor" -Force | Out-Null
+  $harness = @'
+using System;
+using System.IO;
+using UnityEditor;
+using UnityEngine;
+public static class KaihenShelfVpmSmoke {
+  public static void Run() {
+    try {
+      var package = UnityEditor.PackageManager.PackageInfo.FindForAssembly(typeof(KaihenShelf.AvatarDefaultsLoader).Assembly);
+      if (package == null || package.name != "com.usamishin.kaihenshelf.core") throw new Exception("Package resolution failed");
+      if (!KaihenShelf.AvatarDefaultsLoader.Load(out var warning)) throw new Exception(warning);
+      File.WriteAllText(Path.Combine(Application.dataPath, "../vpm-smoke.txt"), "PASS package assembly and avatar defaults from Packages");
+      EditorApplication.Exit(0);
+    } catch(Exception e) { Debug.LogException(e); EditorApplication.Exit(1); }
+  }
+}
+'@
+  [IO.File]::WriteAllText("$project/Assets/Editor/KaihenShelfVpmSmoke.cs", $harness)
   $log = Join-Path $testRoot 'unity.log'
-  $arguments = @('-batchmode','-nographics','-quit','-projectPath',('"' + $project + '"'),'-logFile',('"' + $log + '"'))
+  $arguments = @('-batchmode','-nographics','-projectPath',('"' + $project + '"'),'-executeMethod','KaihenShelfVpmSmoke.Run','-logFile',('"' + $log + '"'))
   $process = Start-Process -FilePath $UnityEditor -ArgumentList $arguments -WindowStyle Hidden -PassThru
   if (!$process.WaitForExit(180000)) { throw "Unity still running; inspect process $($process.Id) and $log" }
-  if ($process.ExitCode -ne 0 -or (Select-String -LiteralPath $log -Pattern 'error CS\d+|Scripts have compiler errors')) { throw "Unity compile failed: $log" }
-  Write-Output 'PASS Unity 2022.3 installed VPM package compilation'
-  Set-Content (Join-Path $testRoot 'result.txt') 'PASS fresh, legacy, renamed; user data preserved; Unity compile'
+  if ($process.ExitCode -ne 0 -or !(Test-Path "$project/vpm-smoke.txt") -or (Select-String -LiteralPath $log -Pattern 'error CS\d+|Scripts have compiler errors')) { throw "Unity smoke failed: $log" }
+  Get-Content "$project/vpm-smoke.txt"
+  # Uninstall/reinstall also preserves assets and history, using a project without the test harness.
+  $project = Join-Path $testRoot 'current'
+  $historyHash = (Get-FileHash "$project/UserSettings/KaihenShelf/history.json").Hash
+  & $VrcGet remove $id --project $project --offline --yes
+  if ($LASTEXITCODE -ne 0 -or (Test-Path "$project/Packages/$id/package.json")) { throw 'Package removal failed' }
+  & $VrcGet install $id --project $project --offline --yes
+  if ($LASTEXITCODE -ne 0 -or !(Test-Path "$project/Packages/$id/package.json")) { throw 'Package reinstall failed' }
+  if (!(Test-Path "$project/Assets/Keep/product.txt") -or (Get-FileHash "$project/UserSettings/KaihenShelf/history.json").Hash -ne $historyHash) { throw 'User data changed on reinstall' }
+  Write-Output 'PASS uninstall/reinstall preserves user content'
+  Set-Content (Join-Path $testRoot 'result.txt') 'PASS fresh, legacy, current, renamed; user data preserved; Unity compile and defaults; uninstall/reinstall'
 } finally {
   & $VrcGet user-package remove $source
   Write-Output "Validation project: $testRoot"
