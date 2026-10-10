@@ -304,7 +304,7 @@ namespace KaihenShelf
             using (new EditorGUILayout.HorizontalScope(EditorStyles.toolbar))
             {
                 GUILayout.Label("KaihenShelf", EditorStyles.boldLabel);
-                GUILayout.FlexibleSpace(); GUILayout.Label("BOOTH Library Manager連携・非公式  |  0.1.143", EditorStyles.miniLabel);
+                GUILayout.FlexibleSpace(); GUILayout.Label("BOOTH Library Manager連携・非公式  |  0.1.144", EditorStyles.miniLabel);
             }
             using (new EditorGUILayout.HorizontalScope())
             {
@@ -2145,7 +2145,7 @@ namespace KaihenShelf
             EnsureSettingsDraft(); EnsureNavigationStyles();
             GUILayout.Label("インポート先・分類設定", EditorStyles.boldLabel);
             GUILayout.Space(6);
-            GUILayout.Label("インポート先が空欄の場合はAssets直下にインポートされます。\n分類条件の「サブカテゴリ」「タグを含む」は、いずれかに当てはまれば対象となり、「タグを含まない」は指定タグが1つでもあればその分類から除外します。\nタグはテキスト完全一致です。* を入力することで、そのテキストを部分一致として判定可能です。", EditorStyles.wordWrappedMiniLabel);
+            GUILayout.Label("インポート先が空欄の場合はAssets直下にインポートされます。\n「サブカテゴリ」「タグを含む」「ショップを含む」は、いずれかに当てはまれば対象となります。「タグを含まない」「ショップを含まない」は、いずれかに当てはまればその分類から除外します。除外条件だけでは分類しません。\nタグとショップ名はテキスト完全一致です。* を入力すると部分一致にできます。変更は「保存して適用」で反映します。", EditorStyles.wordWrappedMiniLabel);
             GUILayout.Space(8);
             classificationDraftChanged = !CategoryRules.SameContents(classificationDraft, classificationApplied)
                 || targetDraft.Any(pair => pair.Value != state.Target(pair.Key));
@@ -2196,7 +2196,7 @@ namespace KaihenShelf
                                 var condition = rule.conditions[i];
                                 using (new EditorGUILayout.HorizontalScope())
                                 {
-                                    condition.source = (CategoryConditionSource)Clickable.Popup((int)condition.source, ClassificationSources, sortPopupStyle, GUILayout.Width(124), GUILayout.Height(24));
+                                    condition.source = (CategoryConditionSource)Clickable.Popup((int)condition.source, ClassificationSources, sortPopupStyle, GUILayout.Width(144), GUILayout.Height(24));
                                     condition.value = EditorGUILayout.TextField(condition.value ?? "", GUILayout.Height(24));
                                     if (Clickable.LayoutButton("削除", GUILayout.Width(44), GUILayout.Height(24)))
                                     { rule.conditions.RemoveAt(i); GUI.FocusControl(null); GUIUtility.ExitGUI(); }
@@ -2278,7 +2278,7 @@ namespace KaihenShelf
                 using (new EditorGUI.DisabledScope(work != null || ImportCoordinator.Busy)) if (Clickable.LayoutButton("同意を取り消して読み取りを停止", GUILayout.Width(240), GUILayout.Height(24))) { state.consentVersion = ""; state.consentUtc = ""; consentCheck = false; thumbnails?.Clear(); thumbnails?.SetRemoteEnabled(false); Changed(); Save(); }
             }
         }
-        static readonly string[] ClassificationSources = { "サブカテゴリ", "タグを含む", "タグを含まない" };
+        static readonly string[] ClassificationSources = { "サブカテゴリ", "タグを含む", "タグを含まない", "ショップを含む", "ショップを含まない" };
 
         void DrawHistory()
         {

@@ -29,10 +29,10 @@ In **インポート先・分類設定**, configure import destinations and clas
 <GuideImage name="import-settings" english caption="Import destinations and classification rules" />
 
 1. **Destination**: set a folder under Assets. The resulting path appears below the input.
-2. **Rules**: edit the subcategory and tag conditions for this category.
+2. **Rules**: edit the subcategory, tag, and shop conditions for this category.
 3. **Save & apply (保存して適用)**: apply your changes. This button stays disabled until you make a change.
 
-Subcategory and included-tag rules match with OR. Any excluded tag excludes the category. Tags match exactly unless you use `*`, for example `*material*`. Categories are checked from top to bottom; manual product classifications take priority.
+Subcategory, included-tag, and included-shop conditions match with OR. Any matching excluded tag or shop skips that category. Exclusions alone cannot classify a product. Tags and shop display names match exactly unless you use `*`, for example `*material*`. Categories are checked from top to bottom; manual product classifications take priority. Changes take effect only after Save & apply.
 
 ## Import
 

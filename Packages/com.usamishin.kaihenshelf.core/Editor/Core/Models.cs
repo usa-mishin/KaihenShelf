@@ -110,8 +110,8 @@ namespace KaihenShelf
         public void ApplyCategoryRules()
         {
             if (!categoryRulesConfigured) return;
-            foreach (var item in items.Where(x => !x.unpurchased && (x.source == "blm" || !string.IsNullOrEmpty(x.originalCategory) || x.tags != null && x.tags.Count > 0)))
-                item.category = CategoryRules.Classify(item.originalCategory, item.tags, categoryRules);
+            foreach (var item in items.Where(x => !x.unpurchased && (x.source == "blm" || !string.IsNullOrEmpty(x.originalCategory) || x.tags != null && x.tags.Count > 0 || !string.IsNullOrWhiteSpace(x.shop))))
+                item.category = CategoryRules.Classify(item.originalCategory, item.tags, categoryRules, item.shop);
         }
         public ItemMetadata Meta(string id)
         {
@@ -167,7 +167,7 @@ namespace KaihenShelf
         public void MergeBlm(List<LibraryItem> incoming)
         {
             if (categoryRulesConfigured)
-                foreach (var item in incoming) item.category = CategoryRules.Classify(item.originalCategory, item.tags, categoryRules);
+                foreach (var item in incoming) item.category = CategoryRules.Classify(item.originalCategory, item.tags, categoryRules, item.shop);
             foreach (var item in incoming)
             {
                 var pending = items.Find(x => x.unpurchased && item.boothId.Length > 0 && x.boothId == item.boothId);

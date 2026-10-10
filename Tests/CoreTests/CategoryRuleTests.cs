@@ -5,6 +5,66 @@ static class CategoryRuleTests
     static void Check(bool value) { if (!value) throw new Exception("Classification assertion failed."); }
     public static void Run(Action<string, Action> test)
     {
+        test("shop conditions use exact names or globs with OR matching", () =>
+        {
+            var rules = new List<CategoryRule> { new() { category = AssetCategory.Hair, conditions = new() {
+                new() { source = CategoryConditionSource.Shop, value = "GLAY Unknown" },
+                new() { source = CategoryConditionSource.Shop, value = "DanaStudio" },
+                new() { source = CategoryConditionSource.Tag, value = "hair" } } } };
+            Check(CategoryRules.Classify("", null, rules, " ＧＬＡＹ Unknown ") == AssetCategory.Hair);
+            Check(CategoryRules.Classify("", null, rules, "danastudio") == AssetCategory.Hair);
+            Check(CategoryRules.Classify("", null, rules, "DanaStudio Extra") == AssetCategory.Other);
+            Check(CategoryRules.Classify("", new[] { "hair" }, rules, "Different") == AssetCategory.Hair);
+            rules[0].conditions[0].value = "GLAY*Unknown";
+            Check(CategoryRules.Classify("", null, rules, "GLAYUnknown") == AssetCategory.Hair);
+            Check(CategoryRules.Classify("", null, rules, "GLAY Unknown") == AssetCategory.Hair);
+            Check(CategoryRules.Classify("", null, rules, null) == AssetCategory.Other);
+        });
+        test("shop exclusions veto subcategory tag and shop matches without claiming items alone", () =>
+        {
+            var rules = CategoryRules.Defaults();
+            var clothing = rules.Single(r => r.category == AssetCategory.Clothing);
+            clothing.conditions.Add(new() { source = CategoryConditionSource.Tag, value = "hair" });
+            clothing.conditions.Add(new() { source = CategoryConditionSource.Shop, value = "GLAY*" });
+            clothing.conditions.Add(new() { source = CategoryConditionSource.ShopNotContains, value = "GLAY*Unknown" });
+            clothing.conditions.Add(new() { source = CategoryConditionSource.ShopNotContains, value = "DanaStudio" });
+            var hair = rules.Single(r => r.category == AssetCategory.Hair);
+            hair.conditions.Add(new() { source = CategoryConditionSource.Shop, value = "GLAY*Unknown" });
+            hair.conditions.Add(new() { source = CategoryConditionSource.Shop, value = "DanaStudio" });
+            foreach (string shop in new[] { "GLAY Unknown", "DanaStudio" })
+                Check(CategoryRules.Classify("3D衣装", new[] { "hair" }, rules, shop) == AssetCategory.Hair);
+            Check(CategoryRules.Classify("3D衣装", null, rules, "Different") == AssetCategory.Clothing);
+            hair.conditions.Add(new() { source = CategoryConditionSource.TagNotContains, value = "ヘアアクセサリー" });
+            Check(CategoryRules.Classify("3D衣装", new[] { "ヘアアクセサリー" }, rules, "DanaStudio") == AssetCategory.Other);
+            rules = new() { new() { category = AssetCategory.Hair, conditions = new() {
+                new() { source = CategoryConditionSource.ShopNotContains, value = "DanaStudio" },
+                new() { source = CategoryConditionSource.Shop, value = " " } } } };
+            Check(CategoryRules.Classify("", null, rules, "Different") == AssetCategory.Other);
+            Check(CategoryRules.Classify("", null, rules, "") == AssetCategory.Other);
+        });
+        test("shop rules survive draft copy serialization apply and BLM reload with manual overrides", () =>
+        {
+            var state = new LibraryState { categoryRulesConfigured = true, categoryRulesRevision = 3, categoryRules = CategoryRules.Defaults() };
+            var draft = CategoryRules.Copy(state.categoryRules);
+            draft.Single(r => r.category == AssetCategory.Clothing).conditions.Add(new() { source = CategoryConditionSource.ShopNotContains, value = "DanaStudio" });
+            draft.Single(r => r.category == AssetCategory.Hair).conditions.Add(new() { source = CategoryConditionSource.Shop, value = "DanaStudio" });
+            var auto = new LibraryItem { id = "auto", source = "blm", originalCategory = "3D衣装", shop = "DanaStudio" };
+            var manual = new LibraryItem { id = "manual", source = "manual", shop = "DanaStudio" };
+            var custom = new LibraryItem { id = "custom", source = "blm", originalCategory = "3D衣装", shop = "DanaStudio" };
+            state.items.AddRange(new[] { auto, manual, custom }); state.SetCategory(custom, AssetCategory.Accessory);
+            state.ApplyCategoryRules(); Check(auto.category == AssetCategory.Clothing);
+            Check(!CategoryRules.SameContents(draft, state.categoryRules));
+            state.categoryRules = draft; state.ApplyCategoryRules();
+            Check(auto.category == AssetCategory.Hair && manual.category == AssetCategory.Hair && state.Category(custom) == AssetCategory.Accessory);
+            var options = new System.Text.Json.JsonSerializerOptions { IncludeFields = true };
+            var loaded = System.Text.Json.JsonSerializer.Deserialize<LibraryState>(System.Text.Json.JsonSerializer.Serialize(state, options), options);
+            Check(CategoryRules.SameContents(loaded.categoryRules, draft) && !loaded.MigrateCategoryRules());
+            loaded.MergeBlm(new() { new LibraryItem { id = "custom", source = "blm", originalCategory = "3D衣装", shop = "DanaStudio" } });
+            Check(loaded.items.Single(i => i.id == "custom").category == AssetCategory.Hair);
+            Check(loaded.Category(loaded.items.Single(i => i.id == "custom")) == AssetCategory.Accessory);
+            Check((int)CategoryConditionSource.Subcategory == 0 && (int)CategoryConditionSource.Tag == 1 && (int)CategoryConditionSource.TagNotContains == 2);
+            Check(CategoryRules.Defaults().SelectMany(r => r.conditions).All(c => c.source != CategoryConditionSource.Shop && c.source != CategoryConditionSource.ShopNotContains));
+        });
         test("tag exclusions veto positive OR matches and allow clothing to hair routing", () =>
         {
             var rules = CategoryRules.Defaults();

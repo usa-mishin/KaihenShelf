@@ -5,7 +5,7 @@ using System.Linq;
 namespace KaihenShelf
 {
     // Keep existing serialized values: Tag remains the positive tag condition.
-    public enum CategoryConditionSource { Subcategory = 0, Tag = 1, TagNotContains = 2 }
+    public enum CategoryConditionSource { Subcategory = 0, Tag = 1, TagNotContains = 2, Shop = 3, ShopNotContains = 4 }
     [Serializable] public sealed class CategoryCondition
     {
         public CategoryConditionSource source;
@@ -92,7 +92,7 @@ namespace KaihenShelf
             }
             return true;
         }
-        public static AssetCategory Classify(string originalCategory, IEnumerable<string> tags, IEnumerable<CategoryRule> rules)
+        public static AssetCategory Classify(string originalCategory, IEnumerable<string> tags, IEnumerable<CategoryRule> rules, string shop = "")
         {
             string subcategory = originalCategory ?? "";
             int separator = subcategory.LastIndexOf('>');
@@ -110,8 +110,13 @@ namespace KaihenShelf
                     {
                         if (tagSet.Any(tag => TagMatches(tag, value))) { excluded = true; break; }
                     }
+                    else if (condition.source == CategoryConditionSource.ShopNotContains)
+                    {
+                        if (TagMatches(shop, value)) { excluded = true; break; }
+                    }
                     else if (condition.source == CategoryConditionSource.Subcategory) matched |= value == subcategory;
                     else if (condition.source == CategoryConditionSource.Tag) matched |= tagSet.Any(tag => TagMatches(tag, value));
+                    else if (condition.source == CategoryConditionSource.Shop) matched |= TagMatches(shop, value);
                 }
                 // Positive conditions are OR; every exclusion must pass. Exclusion alone cannot claim all items.
                 if (matched && !excluded) return rule.category;
