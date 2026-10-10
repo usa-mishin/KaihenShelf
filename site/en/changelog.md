@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.1.141
+
+- Simplified the in-editor guide with grayscale step numbers and a link to the online user guide.
+
 ## 0.1.140
 
 - Added package distribution configuration for VCC and ALCOM.

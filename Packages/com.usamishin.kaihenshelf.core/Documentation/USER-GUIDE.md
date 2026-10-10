@@ -1,4 +1,4 @@
-# KaihenShelf Unity Editor版 0.1.140
+# KaihenShelf Unity Editor版 0.1.141
 
 旧名称の版から更新すると、共通データは `%LOCALAPPDATA%/KaihenShelf/Unity`、プロジェクト内の履歴と画像は `UserSettings/KaihenShelf`、作業データは `Library/KaihenShelf` に移行します。保存済み画像への参照も更新します。書き換え前のJSONは `.before-kaihenshelf.bak` に保持します。新旧保存先が両方存在し、移行完了記録がない場合は上書きせず停止します。
 
@@ -18,7 +18,7 @@ Unity内の配置は `Assets/KaihenShelf`、UPMパッケージIDは `com.usamish
 
 Windows 10/11・Unity 2022.3 LTS向けのEditor拡張です。BOOTH Library Manager連携・非公式です。左メニューの「使い方・ポリシー」でも最新の操作説明と読み取り・保存・通信範囲を確認できます。
 
-アプリ内の使い方は、初めての方向けに「商品を読み込む → 使いたい商品を探す → Unity内の保存先を確認する → インポートする」の4枚のカードで案内します。この配布ガイドには各機能の詳しい説明を掲載しています。
+アプリ内の使い方は、初めての方向けに「商品を読み込む → 使いたい商品を探す → Unity内の保存先を確認する → インポートする」の4枚のカードで案内します。手順番号はグレーで表示します。「詳しい使い方（説明サイト）を開く」から、画像付きの操作ガイド https://usa-mishin.github.io/KaihenShelf/guide/usage を開けます。この配布ガイドにも各機能の詳しい説明を掲載しています。
 
 ## VCC／ALCOMで導入
 
@@ -28,7 +28,7 @@ Windows 10/11・Unity 2022.3 LTS向けのEditor拡張です。BOOTH Library Mana
 
 ## 手動で導入
 
-1. `KaihenShelf-0.1.140.unitypackage` をUnityの `Assets > Import Package > Custom Package` から導入します。
+1. `KaihenShelf-0.1.141.unitypackage` をUnityの `Assets > Import Package > Custom Package` から導入します。
 2. `KaihenShelf > KaihenShelf` を開きます。
 3. 読み取り・保存・通信範囲を確認し、同意して開始します。
 

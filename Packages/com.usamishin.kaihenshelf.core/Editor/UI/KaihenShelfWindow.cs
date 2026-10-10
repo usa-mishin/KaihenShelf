@@ -304,7 +304,7 @@ namespace KaihenShelf
             using (new EditorGUILayout.HorizontalScope(EditorStyles.toolbar))
             {
                 GUILayout.Label("KaihenShelf", EditorStyles.boldLabel);
-                GUILayout.FlexibleSpace(); GUILayout.Label("BOOTH Library Manager連携・非公式  |  0.1.140", EditorStyles.miniLabel);
+                GUILayout.FlexibleSpace(); GUILayout.Label("BOOTH Library Manager連携・非公式  |  0.1.141", EditorStyles.miniLabel);
             }
             using (new EditorGUILayout.HorizontalScope())
             {
@@ -2377,23 +2377,18 @@ namespace KaihenShelf
         void DrawHelp()
         {
             GUILayout.Label(Pages[7], EditorStyles.boldLabel);
-            GUILayout.Space(6);
-            GUILayout.Label("はじめての方へ", new GUIStyle(EditorStyles.boldLabel) { fontSize = 16 });
+            GUILayout.Space(10);
+            DrawQuickStartCard("1", "商品を読み込む",
+                "「表示・連携設定」で保存場所を確認し、「データ再取得」を押します。");
+            DrawQuickStartCard("2", "商品を探す",
+                "「アバター」や「アイテム・アセット」から商品を選び、「詳細」を開きます。");
+            DrawQuickStartCard("3", "インポート先を確認する",
+                "「インポート先・分類設定」で配置先を確認。変更したら「保存して適用」を押します。");
+            DrawQuickStartCard("4", "インポートする",
+                "商品詳細の「インポート」を押し、確認画面で「Import」を押します。");
             GUILayout.Space(4);
-            GUILayout.Label("商品を読み込んで、Unityにインポートするまでの4ステップ。", EditorStyles.wordWrappedLabel);
-            GUILayout.Space(12);
-            DrawQuickStartCard("01", "表示・連携設定 → データ再取得", "商品を読み込む",
-                "「表示・連携設定」でBOOTH Library Managerの保存場所を確認。\n左下の「データ再取得」を押すと、商品が一覧に表示されます。", false);
-            DrawQuickStartCard("02", "アイテム・アセット → 詳細", "使いたい商品を探す",
-                "商品名や対応アバターで絞り込みます。\n商品カードの「詳細」を押すと、中のファイルを確認できます。", false);
-            DrawQuickStartCard("03", "インポート先・分類設定", "Unity内の保存先を確認する",
-                "分類ごとの保存先を確認します。変更後は「保存して適用」を押します。\n元の配置が必要な商品は、該当分類の保存先を空欄にします。", false);
-            DrawQuickStartCard("04", "商品詳細 → UnityPackage", "インポートする",
-                "使うファイルの「インポート」を押します。\n確認画面で内容と保存先を確認し、「Import」で取り込み完了です。", true);
-            GUILayout.Space(12);
-            GUILayout.Label("こんなときは", EditorStyles.boldLabel);
-            GUILayout.Space(4);
-            GUILayout.Label("・BOOTH Library Managerを使わない商品 → 左下の「フォルダから追加登録」\n・対応アバターが違う → 商品詳細の「情報を編集」\n・画像が表示されない → 「データ再取得」で再試行", EditorStyles.wordWrappedLabel);
+            if (Clickable.LayoutButton("詳しい使い方（説明サイト）を開く ↗", GUILayout.Width(300), GUILayout.Height(30)))
+                Application.OpenURL("https://usa-mishin.github.io/KaihenShelf/guide/usage");
             GUILayout.Space(16);
             Rect separator = GUILayoutUtility.GetRect(0, 1, GUILayout.ExpandWidth(true));
             EditorGUI.DrawRect(separator, EditorGUIUtility.isProSkin ? new Color(1, 1, 1, .18f) : new Color(0, 0, 0, .2f));
@@ -2401,37 +2396,31 @@ namespace KaihenShelf
             GUILayout.Label("ポリシー", EditorStyles.boldLabel);
             DrawPolicy();
         }
-        void DrawQuickStartCard(string number, string location, string heading, string body, bool last)
+        void DrawQuickStartCard(string number, string heading, string body)
         {
-            var titleStyle = new GUIStyle(EditorStyles.boldLabel) { fontSize = 14 };
+            var titleStyle = new GUIStyle(EditorStyles.boldLabel) { fontSize = 13 };
             var bodyStyle = new GUIStyle(EditorStyles.wordWrappedLabel) { fontSize = 12 };
-            var locationStyle = new GUIStyle(EditorStyles.miniLabel) { alignment = TextAnchor.MiddleRight };
             bool dark = EditorGUIUtility.isProSkin;
-            locationStyle.normal.textColor = dark ? new Color(.7f, .7f, .7f) : new Color(.36f, .36f, .36f);
             float bodyHeight = bodyStyle.CalcHeight(new GUIContent(body), Mathf.Max(200, position.width - 274));
-            Rect card = GUILayoutUtility.GetRect(0, Mathf.Max(88, bodyHeight + 52), GUILayout.ExpandWidth(true));
+            Rect card = GUILayoutUtility.GetRect(0, Mathf.Max(64, bodyHeight + 44), GUILayout.ExpandWidth(true));
             if (Event.current.type == EventType.Repaint)
             {
                 GUI.DrawTexture(card, Texture2D.whiteTexture, ScaleMode.StretchToFill, true, 0,
-                    dark ? new Color(.34f, .34f, .34f) : new Color(.65f, .65f, .65f), 0, 5);
+                    dark ? new Color(.34f, .34f, .34f) : new Color(.65f, .65f, .65f), 0, 4);
                 GUI.DrawTexture(new Rect(card.x + 1, card.y + 1, card.width - 2, card.height - 2),
                     Texture2D.whiteTexture, ScaleMode.StretchToFill, true, 0,
-                    dark ? new Color(.22f, .22f, .22f) : new Color(.86f, .86f, .86f), 0, 4);
+                    dark ? new Color(.22f, .22f, .22f) : new Color(.92f, .92f, .92f), 0, 3);
             }
-            Rect marker = new Rect(card.x + 14, card.y + 15, 34, 34);
-            GUI.DrawTexture(marker, Texture2D.whiteTexture, ScaleMode.StretchToFill, true, 0, new Color32(111, 78, 220, 255), 0, 17);
-            var numberStyle = new GUIStyle(EditorStyles.boldLabel) { fontSize = 14, alignment = TextAnchor.MiddleCenter };
-            numberStyle.normal.textColor = Color.white;
+            Rect marker = new Rect(card.x + 12, card.center.y - 14, 28, 28);
+            GUI.DrawTexture(marker, Texture2D.whiteTexture, ScaleMode.StretchToFill, true, 0,
+                dark ? new Color(.42f, .42f, .42f) : new Color(.78f, .78f, .78f), 0, 14);
+            var numberStyle = new GUIStyle(EditorStyles.boldLabel) { fontSize = 13, alignment = TextAnchor.MiddleCenter };
+            numberStyle.normal.textColor = dark ? Color.white : new Color(.18f, .18f, .18f);
             GUI.Label(marker, number, numberStyle);
-            float textX = card.x + 62, textWidth = card.width - 78;
-            GUI.Label(new Rect(textX, card.y + 12, textWidth, 22), heading, titleStyle);
-            GUI.Label(new Rect(card.xMax - 240, card.y + 12, 224, 22), location, locationStyle);
-            GUI.Label(new Rect(textX, card.y + 38, textWidth, card.height - 48), body, bodyStyle);
-            if (!last)
-            {
-                Rect connector = GUILayoutUtility.GetRect(0, 10, GUILayout.ExpandWidth(true));
-                EditorGUI.DrawRect(new Rect(card.x + 30, connector.y, 2, connector.height), dark ? new Color(.45f, .45f, .45f) : new Color(.58f, .58f, .58f));
-            }
+            float textX = card.x + 52, textWidth = card.width - 66;
+            GUI.Label(new Rect(textX, card.y + 9, textWidth, 20), heading, titleStyle);
+            GUI.Label(new Rect(textX, card.y + 32, textWidth, card.height - 40), body, bodyStyle);
+            GUILayout.Space(6);
         }
         static void DrawGuideSection(string heading, string text)
         {
