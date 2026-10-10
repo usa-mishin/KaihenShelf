@@ -304,7 +304,7 @@ namespace KaihenShelf
             using (new EditorGUILayout.HorizontalScope(EditorStyles.toolbar))
             {
                 GUILayout.Label("KaihenShelf", EditorStyles.boldLabel);
-                GUILayout.FlexibleSpace(); GUILayout.Label("BOOTH Library Manager連携・非公式  |  0.1.141", EditorStyles.miniLabel);
+                GUILayout.FlexibleSpace(); GUILayout.Label("BOOTH Library Manager連携・非公式  |  0.1.142", EditorStyles.miniLabel);
             }
             using (new EditorGUILayout.HorizontalScope())
             {
@@ -367,7 +367,7 @@ namespace KaihenShelf
         void DrawConsent()
         {
             if (ConsentScreen.Draw(ref consentScroll, ref consentCheck, ref consentDetails, !string.IsNullOrEmpty(state.consentVersion), DrawPolicy))
-                { state.consentVersion = BlmDatabaseReader.ConsentVersion; state.consentUtc = DateTime.UtcNow.ToString("o"); RefreshCatalog(); Save(); page = 0; }
+                { state.consentVersion = BlmDatabaseReader.ConsentVersion; state.consentUtc = DateTime.UtcNow.ToString("o"); RefreshCatalog(); Save(); page = 0; ReloadBlm(); }
         }
         void DrawPolicy()
         {
@@ -400,7 +400,15 @@ namespace KaihenShelf
             thumbnails?.RetryFailed();
             string path = state.blmPath;
             bool consent = state.consentVersion == BlmDatabaseReader.ConsentVersion;
-            Run(token => BlmDatabaseReader.ReadKnown(path, consent, token), items =>
+            Run(token =>
+            {
+                try { return BlmDatabaseReader.ReadKnown(path, consent, token); }
+                catch (OperationCanceledException) { throw; }
+                catch (Exception ex)
+                {
+                    throw new InvalidOperationException("商品を読み込めませんでした。「表示・連携設定」でBOOTH Library Managerの保存場所（DB）を確認し、「データ再取得」を押してください。 " + ex.Message);
+                }
+            }, items =>
             {
                 state.MergeBlm(items); RefreshCatalog();
                 message = items.Count + "件の商品情報を読み取りました。";
@@ -2378,8 +2386,8 @@ namespace KaihenShelf
         {
             GUILayout.Label(Pages[7], EditorStyles.boldLabel);
             GUILayout.Space(10);
-            DrawQuickStartCard("1", "商品を読み込む",
-                "「表示・連携設定」で保存場所を確認し、「データ再取得」を押します。");
+            DrawQuickStartCard("1", "商品の読み込みを待つ",
+                "同意後、BOOTH Library Managerの商品を自動で読み込みます。商品が表示されたら、使い始められます。");
             DrawQuickStartCard("2", "商品を探す",
                 "「アバター」や「アイテム・アセット」から商品を選び、「詳細」を開きます。");
             DrawQuickStartCard("3", "インポート先を確認する",

@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.1.142
+
+- Automatically load products after consent. Updated the quick-start and setup guides, with database settings guidance when loading fails.
+
 ## 0.1.141
 
 - Simplified the in-editor guide with grayscale step numbers and a link to the online user guide.

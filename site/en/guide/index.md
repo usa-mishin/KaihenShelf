@@ -14,9 +14,11 @@ The button opens the compatible application registered on your PC. If it does no
 
 Choose **KaihenShelf → KaihenShelf** from the Unity menu. Review the data access, storage, and network policy, then consent to start.
 
-## 3. Load your library
+## 3. Wait for your library to load
 
-In **表示・連携設定** (Display & integration), check the BOOTH Library Manager database location, then click **データ再取得** (Reload data). You can browse to the database if it is stored elsewhere.
+After you consent, KaihenShelf automatically loads your products from BOOTH Library Manager. Once they appear, you can start using your library.
+
+If loading fails, check the database location in **表示・連携設定** (Display & integration), then click **データ再取得** (Reload data). You can browse to the database if it is stored elsewhere. Use Reload data whenever you want to refresh product information.
 
 Download product files with BOOTH Library Manager or another appropriate method first. KaihenShelf does not sign in to BOOTH or download purchased files. You can also use **フォルダから追加登録** to register a local folder.
 
