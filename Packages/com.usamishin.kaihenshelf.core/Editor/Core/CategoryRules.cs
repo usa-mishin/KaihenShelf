@@ -25,6 +25,11 @@ namespace KaihenShelf
                 rules[(int)Categories.BoothCategories[i]].conditions.Add(new CategoryCondition { value = Categories.BoothNames[i] });
             AddSkinMaterialTag(rules);
             AddMaterialPatterns(rules);
+            foreach (string shop in new[] { "GLAY Unknown", "DanaStudio" })
+            {
+                rules[(int)AssetCategory.Clothing].conditions.Add(new CategoryCondition { source = CategoryConditionSource.ShopNotContains, value = shop });
+                rules[(int)AssetCategory.Hair].conditions.Add(new CategoryCondition { source = CategoryConditionSource.Shop, value = shop });
+            }
             PrioritizeMaterial(rules);
             return rules;
         }

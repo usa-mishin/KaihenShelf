@@ -1,4 +1,4 @@
-# KaihenShelf Unity Editor版 0.1.144
+# KaihenShelf Unity Editor版 0.1.145
 
 旧名称の版から更新すると、共通データは `%LOCALAPPDATA%/KaihenShelf/Unity`、プロジェクト内の履歴と画像は `UserSettings/KaihenShelf`、作業データは `Library/KaihenShelf` に移行します。保存済み画像への参照も更新します。書き換え前のJSONは `.before-kaihenshelf.bak` に保持します。新旧保存先が両方存在し、移行完了記録がない場合は上書きせず停止します。
 
@@ -28,7 +28,7 @@ Windows 10/11・Unity 2022.3 LTS向けのEditor拡張です。BOOTH Library Mana
 
 ## 手動で導入
 
-1. `KaihenShelf-0.1.144.unitypackage` をUnityの `Assets > Import Package > Custom Package` から導入します。
+1. `KaihenShelf-0.1.145.unitypackage` をUnityの `Assets > Import Package > Custom Package` から導入します。
 2. `KaihenShelf > KaihenShelf` を開きます。
 3. 読み取り・保存・通信範囲を確認し、同意して開始します。
 
@@ -63,6 +63,8 @@ BOOTH Library Managerを使わない商品は「フォルダから追加登録�
 「インポート先・分類設定」の表で「サブカテゴリ」「タグ」「ショップ」の条件を追加できます。含む条件はOR、含まない条件は一致した分類から除外します。名前は全角・半角や英字の大文字・小文字を正規化して照合します。サブカテゴリは完全一致、タグとショップ名は * で任意の文字列に一致します（例：*material*）。複数分類に一致した場合は表の上から優先し、一致なしは「その他」、商品ごとの手動分類が最優先です。
 
 初期条件はBOOTHのサブカテゴリと、マテリアル分類の「肌マテリアル」「*マテリアル*」「*material*」「*matcap*」タグです。マテリアルをテクスチャより優先します。「保存して適用」で配置先と分類条件をまとめて保存し、現在の商品と次回以降の再取得に反映します。「初期条件に戻す」も適用するまでは保存済み条件を変更しません。
+
+ショップ条件の初期設定には、衣装の「ショップを含まない」と髪型の「ショップを含む」に、それぞれ `GLAY Unknown` と `DanaStudio` を登録しています。新規利用時と「初期条件に戻す」で使用し、更新時に保存済みの条件へ自動追加はしません。
 
 ## 6. ファイルを確認する
 

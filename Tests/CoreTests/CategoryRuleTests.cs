@@ -45,6 +45,8 @@ static class CategoryRuleTests
         test("shop rules survive draft copy serialization apply and BLM reload with manual overrides", () =>
         {
             var state = new LibraryState { categoryRulesConfigured = true, categoryRulesRevision = 3, categoryRules = CategoryRules.Defaults() };
+            foreach (var rule in state.categoryRules)
+                rule.conditions.RemoveAll(c => c.source == CategoryConditionSource.Shop || c.source == CategoryConditionSource.ShopNotContains);
             var draft = CategoryRules.Copy(state.categoryRules);
             draft.Single(r => r.category == AssetCategory.Clothing).conditions.Add(new() { source = CategoryConditionSource.ShopNotContains, value = "DanaStudio" });
             draft.Single(r => r.category == AssetCategory.Hair).conditions.Add(new() { source = CategoryConditionSource.Shop, value = "DanaStudio" });
@@ -63,7 +65,28 @@ static class CategoryRuleTests
             Check(loaded.items.Single(i => i.id == "custom").category == AssetCategory.Hair);
             Check(loaded.Category(loaded.items.Single(i => i.id == "custom")) == AssetCategory.Accessory);
             Check((int)CategoryConditionSource.Subcategory == 0 && (int)CategoryConditionSource.Tag == 1 && (int)CategoryConditionSource.TagNotContains == 2);
-            Check(CategoryRules.Defaults().SelectMany(r => r.conditions).All(c => c.source != CategoryConditionSource.Shop && c.source != CategoryConditionSource.ShopNotContains));
+        });
+        test("default shop routing matches saved clothing exclusions and hair inclusions", () =>
+        {
+            var defaults = CategoryRules.Defaults();
+            var shops = new[] { "GLAY Unknown", "DanaStudio" };
+            var shopRules = defaults.SelectMany(r => r.conditions).Where(c => c.source == CategoryConditionSource.Shop || c.source == CategoryConditionSource.ShopNotContains).ToList();
+            Check(shopRules.Count == 4);
+            Check(defaults.Single(r => r.category == AssetCategory.Clothing).conditions.Where(c => c.source == CategoryConditionSource.ShopNotContains).Select(c => c.value).SequenceEqual(shops));
+            Check(defaults.Single(r => r.category == AssetCategory.Hair).conditions.Where(c => c.source == CategoryConditionSource.Shop).Select(c => c.value).SequenceEqual(shops));
+            foreach (string shop in shops)
+            {
+                Check(CategoryRules.Classify("3D衣装", null, defaults, shop) == AssetCategory.Hair);
+                Check(CategoryRules.Classify("", null, defaults, shop) == AssetCategory.Hair);
+                Check(CategoryRules.Classify("3Dキャラクター", null, defaults, shop) == AssetCategory.Avatar);
+            }
+            Check(CategoryRules.Classify("3D衣装", null, defaults, "Different shop") == AssetCategory.Clothing);
+            var fresh = new LibraryState(); fresh.MigrateCategoryRules();
+            Check(CategoryRules.SameContents(fresh.categoryRules, defaults));
+            var saved = new LibraryState { categoryRulesConfigured = true, categoryRulesRevision = 3, categoryRules = CategoryRules.Copy(defaults) };
+            saved.categoryRules.Single(r => r.category == AssetCategory.Hair).conditions.RemoveAll(c => c.source == CategoryConditionSource.Shop);
+            var before = CategoryRules.Copy(saved.categoryRules);
+            Check(!saved.MigrateCategoryRules() && CategoryRules.SameContents(saved.categoryRules, before));
         });
         test("tag exclusions veto positive OR matches and allow clothing to hair routing", () =>
         {

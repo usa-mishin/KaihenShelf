@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.1.145
+
+- Default classification rules now exclude GLAY Unknown and DanaStudio from clothing and include them in hair. Existing saved rules are preserved.
+
 ## 0.1.144
 
 - Added included-shop and excluded-shop classification conditions, with exact display-name matching and * wildcards.

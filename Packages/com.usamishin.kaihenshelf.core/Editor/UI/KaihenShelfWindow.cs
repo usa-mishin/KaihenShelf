@@ -304,7 +304,7 @@ namespace KaihenShelf
             using (new EditorGUILayout.HorizontalScope(EditorStyles.toolbar))
             {
                 GUILayout.Label("KaihenShelf", EditorStyles.boldLabel);
-                GUILayout.FlexibleSpace(); GUILayout.Label("BOOTH Library Manager連携・非公式  |  0.1.144", EditorStyles.miniLabel);
+                GUILayout.FlexibleSpace(); GUILayout.Label("BOOTH Library Manager連携・非公式  |  0.1.145", EditorStyles.miniLabel);
             }
             using (new EditorGUILayout.HorizontalScope())
             {
