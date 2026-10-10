@@ -1,0 +1,48 @@
+name: Publish website
+on:
+  push:
+    branches: [main]
+    paths: ['site/**', 'docs/PRIVACY.md', 'package*.json', 'scripts/*.mjs', '.github/workflows/**']
+  workflow_run:
+    workflows: ['Build packages']
+    types: [completed]
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: kaihenshelf-pages
+  cancel-in-progress: false
+jobs:
+  build:
+    if: ${{ github.event_name != 'workflow_run' || (github.event.workflow_run.conclusion == 'success' && startsWith(github.event.workflow_run.head_branch, 'v')) }}
+    runs-on: ubuntu-latest
+    steps:
+      # workflow_run executes the trusted main workflow; never check out event-supplied code.
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - run: npm run test:listing
+      - run: node scripts/build-listing.mjs
+        env:
+          GH_TOKEN: ${{ github.token }}
+      - run: npm run build
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: site/.vitepress/dist
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
+    steps:
+      - uses: actions/deploy-pages@v4
+        id: deploy

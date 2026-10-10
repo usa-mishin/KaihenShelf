@@ -17,7 +17,7 @@ npm run preview
 
 ## 初回公開
 
-GitHub PagesのSourceを **GitHub Actions** に設定します。公開用ファイルだけをコミットし、バージョンタグをpushしてください。最初のタグの前は公開リリースがないため、Pages公開をスキップします。空の配布一覧は公開しません。
+GitHub PagesのSourceを **GitHub Actions** に設定します。公開用ファイルだけをコミットし、バージョンタグをpushしてください。公開リリースがない場合は配布一覧の生成が停止します。空の配布一覧は公開しません。
 
 ## パッケージ更新
 
@@ -26,7 +26,7 @@ GitHub PagesのSourceを **GitHub Actions** に設定します。公開用ファ
 3. ビルド・自動テスト・Unityでのコンパイルと導入を確認。
 4. コミット後、`v0.1.140` の形式で一致するタグをpush。
 
-Actionsがテスト、ZIP作成、Release公開、全公開リリースからの配布一覧生成、サイト公開を順番に実行します。サイトとindex.jsonは同一のPages成果物として公開します。通常のmain更新はサイトのみ公開し、Releaseは作成しません。
+Build packagesがテスト、ZIP作成、Release公開を実行します。成功後にPublish websiteがmainのコードから全公開リリースの配布一覧とサイトを生成し、同一のPages成果物として公開します。Pagesはmainからのみ公開する既定の環境保護を維持します。通常のmain更新でもサイトを公開でき、Releaseは作成しません。
 
 公開済みタグ・Release・ZIPを上書き／削除しないでください。不具合修正には新しいバージョンを発行します。配布一覧は過去バージョンも含め、ZIPを取得してSHA-256を算出します。
 

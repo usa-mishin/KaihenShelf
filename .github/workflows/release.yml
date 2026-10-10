@@ -1,4 +1,4 @@
-name: Release and publish
+name: Build packages
 on:
   push:
     branches: [main]
@@ -64,45 +64,3 @@ jobs:
             exit 1
           fi
           gh release create "$GITHUB_REF_NAME" artifacts/* --verify-tag --title "KaihenShelf $GITHUB_REF_NAME" --notes "VCC / ALCOM: https://usa-mishin.github.io/KaihenShelf/guide/ | Changelog: https://usa-mishin.github.io/KaihenShelf/changelog"
-  pages:
-    if: ${{ always() && needs.verify.result == 'success' && (needs.release.result == 'success' || needs.release.result == 'skipped') }}
-    needs: [verify, release]
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      pages: write
-      id-token: write
-    environment:
-      name: github-pages
-      url: ${{ steps.deploy.outputs.page_url }}
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: '22'
-          cache: npm
-      - run: npm ci
-      - name: Build complete public repository listing
-        id: listing
-        shell: bash
-        run: |
-          if [ "$(gh release list --repo "$GITHUB_REPOSITORY" --limit 1 --json tagName --jq 'length')" = "0" ]; then
-            echo 'No release yet; Pages will be published by the first release tag.'
-            echo 'ready=false' >> "$GITHUB_OUTPUT"
-          else
-            node scripts/build-listing.mjs
-            echo 'ready=true' >> "$GITHUB_OUTPUT"
-          fi
-        env:
-          GH_TOKEN: ${{ github.token }}
-      - run: npm run build
-        if: steps.listing.outputs.ready == 'true'
-      - uses: actions/configure-pages@v5
-        if: steps.listing.outputs.ready == 'true'
-      - uses: actions/upload-pages-artifact@v3
-        if: steps.listing.outputs.ready == 'true'
-        with:
-          path: site/.vitepress/dist
-      - uses: actions/deploy-pages@v4
-        if: steps.listing.outputs.ready == 'true'
-        id: deploy
