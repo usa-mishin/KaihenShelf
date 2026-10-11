@@ -34,8 +34,6 @@ In **インポート先・分類設定**, configure import destinations and clas
 
 Subcategory, included-tag, and included-shop conditions match with OR. Any matching excluded tag or shop skips that category. Exclusions alone cannot classify a product. Tags and shop display names match exactly unless you use `*`, for example `*material*`. Categories are checked from top to bottom; manual product classifications take priority. Changes take effect only after Save & apply.
 
-Defaults exclude `GLAY Unknown` and `DanaStudio` from clothing and include them in hair. Updates preserve your saved rules. To use the new defaults, choose **初期条件に戻す** (Restore defaults), then **保存して適用** (Save & apply). This also resets your other custom classification conditions.
-
 ## Import
 
 Click **インポート**, review the destination and files, then click **Import**. To combine several UnityPackages, use **一括インポート**, select the required packages, and review the combined file list. If materials and prefabs come separately, select both.
