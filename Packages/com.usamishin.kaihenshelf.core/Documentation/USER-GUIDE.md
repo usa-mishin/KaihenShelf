@@ -1,4 +1,4 @@
-# KaihenShelf Unity Editor版 0.1.147
+# KaihenShelf Unity Editor版 0.1.148
 
 旧名称の版から更新すると、共通データは `%LOCALAPPDATA%/KaihenShelf/Unity`、プロジェクト内の履歴と画像は `UserSettings/KaihenShelf`、作業データは `Library/KaihenShelf` に移行します。保存済み画像への参照も更新します。書き換え前のJSONは `.before-kaihenshelf.bak` に保持します。新旧保存先が両方存在し、移行完了記録がない場合は上書きせず停止します。
 
@@ -28,7 +28,7 @@ Windows 10/11・Unity 2022.3 LTS向けのEditor拡張です。BOOTH Library Mana
 
 ## 手動で導入
 
-1. `KaihenShelf-0.1.147.unitypackage` をUnityの `Assets > Import Package > Custom Package` から導入します。
+1. `KaihenShelf-0.1.148.unitypackage` をUnityの `Assets > Import Package > Custom Package` から導入します。
 2. `KaihenShelf > KaihenShelf` を開きます。
 3. 読み取り・保存・通信範囲を確認し、同意して開始します。
 
@@ -90,7 +90,7 @@ UnityPackageの「インポート」を押し、確認画面でファイルと�
 
 確認画面の「商品サムネイル設定」でUnityのProjectフォルダに商品画像を設定できます。ショップ画像は使用しません。別商品が同じ親フォルダを使う場合は、商品ごとの直下の子フォルダへ表示し、複数商品で共有する子フォルダには表示しません。フォルダ自体は移動しません。
 
-Projectの右クリック > KaihenShelf Image > フォルダ画像を設定から手動設定できます。KaihenShelf > KaihenShelf Image > Showで表示を切り替えられます。
+Projectの右クリック > KaihenShelf Image > Set Folder Imageから手動設定できます。KaihenShelf > KaihenShelf Image > Showで表示を切り替えられます。
 
 インポート履歴には商品サムネイル・商品名・PCの現地時刻・インポート数を表示します。「インポート先を開く」でUnityのProject内の配置先、「アイテムを見る」で商品詳細を開きます。「履歴をリセット」は現在のプロジェクトの履歴のみを消し、アセットは削除しません。
 

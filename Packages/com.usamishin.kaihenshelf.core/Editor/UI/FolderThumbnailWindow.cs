@@ -13,7 +13,7 @@ namespace KaihenShelf
         [SerializeField] int selected;
         static LibraryItem[] Items() => LocalStore.Load().items.Where(x => !x.unpurchased && !string.IsNullOrWhiteSpace(x.title) &&
             (!string.IsNullOrEmpty(x.thumbnailPath) || !string.IsNullOrEmpty(x.thumbnailUrl))).OrderBy(x => x.title).ToArray();
-        [MenuItem("Assets/KaihenShelf Image/フォルダ画像を設定")]
+        [MenuItem("Assets/KaihenShelf Image/Set Folder Image")]
         static void Open()
         {
             string path = AssetDatabase.GetAssetPath(Selection.activeObject);
@@ -25,7 +25,7 @@ namespace KaihenShelf
             var main = EditorGUIUtility.GetMainWindowPosition();
             window.minSize = new Vector2(450, 235); window.position = new Rect(main.center.x - 265, main.center.y - 125, 530, 250);
         }
-        [MenuItem("Assets/KaihenShelf Image/フォルダ画像を設定", true)]
+        [MenuItem("Assets/KaihenShelf Image/Set Folder Image", true)]
         static bool CanOpen() => Selection.activeObject != null && AssetDatabase.IsValidFolder(AssetDatabase.GetAssetPath(Selection.activeObject)) && AssetDatabase.GetAssetPath(Selection.activeObject) != "Assets";
         void OnGUI()
         {

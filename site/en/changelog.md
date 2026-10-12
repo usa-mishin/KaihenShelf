@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.1.148
+
+- Renamed the Project context menu command to KaihenShelf Image > Set Folder Image.
+
 ## 0.1.147
 
 - Added BOOTH category and age filters to Items & Assets. All-ages products are selected by default. The R18 visibility setting now also filters history counts and pagination without deleting records.
