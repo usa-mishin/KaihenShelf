@@ -23,6 +23,9 @@ namespace KaihenShelf
         LibraryState state;
         string loadError = "", message = "", search = "", shop = "", tag = "", avatar = "", fileSearch = "";
         int page, category, listPage;
+        string boothCategory = "";
+        BoothAgeFilter ageFilter = BoothAgeFilter.AllAges;
+        static readonly string[] AgeFilterLabels = { "全年齢のみ", "R18商品のみ", "指定なし" };
         const int HistoryPageSize = 20;
         int historyPage;
         Vector2 historyScroll;
@@ -304,7 +307,7 @@ namespace KaihenShelf
             using (new EditorGUILayout.HorizontalScope(EditorStyles.toolbar))
             {
                 GUILayout.Label("KaihenShelf", EditorStyles.boldLabel);
-                GUILayout.FlexibleSpace(); GUILayout.Label("BOOTH Library Manager連携・非公式  |  0.1.146", EditorStyles.miniLabel);
+                GUILayout.FlexibleSpace(); GUILayout.Label("BOOTH Library Manager連携・非公式  |  0.1.147", EditorStyles.miniLabel);
             }
             using (new EditorGUILayout.HorizontalScope())
             {
@@ -450,7 +453,8 @@ namespace KaihenShelf
             if (EditorGUI.EndChangeCheck()) ResetListPosition();
             int currentSort = page == 0 ? avatarSort : sort;
             var filter = new CatalogFilter { avatars = page == 0, hideR18 = state.hideR18, favoritesOnly = favorites,
-                freeOnly = freeOnly, excludeShared = excludeShared, excludeNoAvatar = excludeNoAvatar, category = category, sort = currentSort, search = search, shop = shop, tag = tag, avatarId = avatar };
+                freeOnly = freeOnly, excludeShared = excludeShared, excludeNoAvatar = excludeNoAvatar, category = category, sort = currentSort, search = search, shop = shop, tag = tag, avatarId = avatar,
+                boothCategory = boothCategory, age = ageFilter };
             var items = Catalog.Query(filter);
             int pages = Math.Max(1, (items.Count + 59) / 60); listPage = Mathf.Clamp(listPage, 0, pages - 1);
             using (new EditorGUILayout.HorizontalScope())
@@ -731,7 +735,8 @@ namespace KaihenShelf
         void DrawCompactSearch(string label)
         {
             EnsureNavigationStyles();
-            Rect box = GUILayoutUtility.GetRect(0, page == 1 ? 116 : 48, GUILayout.ExpandWidth(true));
+            bool ageNotice = page == 1 && state.hideR18 && ageFilter != BoothAgeFilter.AllAges;
+            Rect box = GUILayoutUtility.GetRect(0, page == 1 ? (ageNotice ? 172 : 150) : 48, GUILayout.ExpandWidth(true));
             GUI.Box(box, GUIContent.none, EditorStyles.helpBox);
             float divider = box.xMax - 92;
             EditorGUI.DrawRect(new Rect(divider, box.y + 10, 1, box.height - 20), new Color(.5f, .5f, .5f, .35f));
@@ -757,6 +762,9 @@ namespace KaihenShelf
                     shop = FilterPopup(left, "ショップ", shop, Catalog.Shops);
                     tag = FilterPopup(right, "BOOTHタグ", tag, Catalog.Tags);
                     left.y += 34; right.y += 34;
+                    boothCategory = FilterPopup(left, "BOOTHカテゴリ", boothCategory, Catalog.BoothCategories);
+                    ageFilter = (BoothAgeFilter)FilterPopup(right, "年齢制限", (int)ageFilter, AgeFilterLabels);
+                    left.y += 34; right.y += 34;
                     var avatars = Catalog.Avatars;
                     int ai = Array.FindIndex(avatars, x => x.id == avatar) + 1;
                     int next = FilterPopup(left, "対応アバター", ai, Catalog.AvatarLabels);
@@ -768,11 +776,13 @@ namespace KaihenShelf
                     Rect none = new Rect(shared.xMax + 4, shared.y, right.width - shared.width - 4, 18);
                     using (new EditorGUI.DisabledScope(avatar.Length == 0))
                     { excludeNoAvatar = EditorGUI.ToggleLeft(none, "対応アバターなしを除外", excludeNoAvatar); Clickable.Cursor(none); }
+                    if (ageNotice) GUI.Label(new Rect(content.x, left.yMax + 4, content.width, 18),
+                        "R18商品は表示設定で非表示になっています（表示・連携設定で解除）。", EditorStyles.miniLabel);
                 }
                 finally { EditorGUIUtility.labelWidth = previousLabelWidth; }
             }
             if (Clickable.Button(new Rect(divider + 12, box.center.y - 12, 68, 24), "リセット"))
-            { GUI.FocusControl(null); search = shop = tag = avatar = ""; favorites = freeOnly = excludeShared = excludeNoAvatar = false; category = 0; ResetListPosition(); GUI.changed = true; }
+            { GUI.FocusControl(null); search = shop = tag = avatar = boothCategory = ""; ageFilter = BoothAgeFilter.AllAges; favorites = freeOnly = excludeShared = excludeNoAvatar = false; category = 0; ResetListPosition(); GUI.changed = true; }
             GUILayout.Space(8);
         }
         void DrawCategoryTabs()
@@ -910,7 +920,7 @@ namespace KaihenShelf
             if (selected != null)
             {
                 GUI.FocusControl(null); shop = shops ? selected : ""; tag = shops ? "" : selected;
-                avatar = ""; category = 0; freeOnly = excludeShared = excludeNoAvatar = false;
+                avatar = boothCategory = ""; ageFilter = BoothAgeFilter.AllAges; category = 0; freeOnly = excludeShared = excludeNoAvatar = false;
                 page = 1; search = ""; favorites = false; ResetListPosition();
             }
         }
@@ -1172,7 +1182,7 @@ namespace KaihenShelf
             if (Clickable.StableButton(linkRect, 110091, new GUIContent("", tooltip), GUIStyle.none))
             {
                 GUI.FocusControl(null); shop = item.shop; page = 1;
-                search = tag = avatar = ""; category = 0; favorites = freeOnly = excludeShared = excludeNoAvatar = false;
+                search = tag = avatar = boothCategory = ""; ageFilter = BoothAgeFilter.AllAges; category = 0; favorites = freeOnly = excludeShared = excludeNoAvatar = false;
                 ResetListPosition(); Show(); Focus(); RepaintViews();
             }
         }
@@ -1237,7 +1247,7 @@ namespace KaihenShelf
         }
         void FilterFromDetail(string selectedTag, string selectedAvatar)
         {
-            GUI.FocusControl(null); page = 1; search = shop = ""; category = 0;
+            GUI.FocusControl(null); page = 1; search = shop = boothCategory = ""; ageFilter = BoothAgeFilter.AllAges; category = 0;
             tag = selectedTag; avatar = selectedAvatar; favorites = freeOnly = excludeShared = excludeNoAvatar = false;
             ResetListPosition(); Show(); Focus(); RepaintViews();
         }
@@ -1655,7 +1665,7 @@ namespace KaihenShelf
                     using (new EditorGUI.DisabledScope(batchSelection.Count == 0))
                         if (BatchImportActionButton(new Rect(row.xMax - 156, row.y, 156, 24), 93123, batchSelection.Count + "個を一括インポート"))
                         {
-                            try { ImportCoordinator.BeginBatch(batchSelection.ToArray(), item.id, state.Target(state.Category(item)), item.title); pendingBatchSelecting = false; RepaintViews(); }
+                            try { ImportCoordinator.BeginBatch(batchSelection.ToArray(), item.id, state.Target(state.Category(item)), item.title, item.ageRestricted); pendingBatchSelecting = false; RepaintViews(); }
                             catch (Exception ex) { message = ex.Message; }
                         }
                 }
@@ -1793,7 +1803,7 @@ namespace KaihenShelf
             using (new EditorGUI.DisabledScope(ImportCoordinator.Busy || item.unpurchased))
                 if (TextureFolderButton(new Rect(buttonsX, row.center.y - 12, 124, 24), "インポート", "Import", Imported.ContainsSource(item.id, path, true), true))
                 {
-                    try { ImportCoordinator.BeginTextures(path, item.id, state.Target(AssetCategory.Texture), item.shop, item.title); }
+                    try { ImportCoordinator.BeginTextures(path, item.id, state.Target(AssetCategory.Texture), item.shop, item.title, item.ageRestricted); }
                     catch (Exception ex) { message = ex.Message; }
                 }
             if (TextureFolderButton(new Rect(row.xMax - 84, row.center.y - 12, 84, 24), "開く", "Folder Icon")) OpenSavedFolder(path);
@@ -1993,7 +2003,7 @@ namespace KaihenShelf
                 float actionX = rect.xMax - 134, actionY = rect.y + (PackageCardBodyHeight - 54) / 2;
                 using (new EditorGUI.DisabledScope(ImportCoordinator.Busy))
                     if (TextureFolderButton(new Rect(actionX, actionY, 124, 24), "インポート", "Import", Imported.ContainsSource(item.id, card.file.path, false), true))
-                    { try { ImportCoordinator.Begin(card.file.path, item.id, state.Target(state.Category(item)), item.title); } catch (Exception ex) { message = ex.Message; } }
+                    { try { ImportCoordinator.Begin(card.file.path, item.id, state.Target(state.Category(item)), item.title, item.ageRestricted); } catch (Exception ex) { message = ex.Message; } }
                 if (TextureFolderButton(new Rect(actionX, actionY + 30, 124, 24), "開く", "Folder Icon"))
                     OpenSavedFolder(Path.GetDirectoryName(card.file.path));
             }
@@ -2240,7 +2250,7 @@ namespace KaihenShelf
             using (new EditorGUILayout.VerticalScope(EditorStyles.helpBox))
             {
                 GUILayout.Label("表示設定", EditorStyles.boldLabel);
-                state.hideR18 = Clickable.ToggleLeft("R18商品を非表示", state.hideR18);
+                state.hideR18 = Clickable.ToggleLeft("R18商品を一覧・履歴から非表示", state.hideR18);
             }
             if (EditorGUI.EndChangeCheck()) Changed(false);
             GUILayout.Space(12);
@@ -2286,6 +2296,7 @@ namespace KaihenShelf
             if (Event.current.type == EventType.Layout || historyView == null) RefreshHistoryView();
             if (historyViewError.Length > 0) { EditorGUILayout.HelpBox(historyViewError, MessageType.Error); return; }
             var history = historyView;
+            var visibleRecords = history.records.Where(record => Catalog.IsHistoryVisible(record.itemId, state.hideR18, record.ageRestricted)).ToList();
             using (new EditorGUILayout.HorizontalScope())
             {
                 GUILayout.Label("インポート履歴", EditorStyles.boldLabel);
@@ -2304,11 +2315,11 @@ namespace KaihenShelf
             }
             GUILayout.Space(6);
             EnsureNavigationStyles();
-            int pages = Math.Max(1, (history.records.Count + HistoryPageSize - 1) / HistoryPageSize);
+            int pages = Math.Max(1, (visibleRecords.Count + HistoryPageSize - 1) / HistoryPageSize);
             historyPage = Mathf.Clamp(historyPage, 0, pages - 1);
             using (new EditorGUILayout.HorizontalScope())
             {
-                GUILayout.Label(history.records.Count + "件", navigationLabelStyle, GUILayout.Height(NavigationHeight));
+                GUILayout.Label(visibleRecords.Count + "件", navigationLabelStyle, GUILayout.Height(NavigationHeight));
                 GUILayout.FlexibleSpace();
                 GUILayout.Label(HistoryPageSize + "件 / ページ", EditorStyles.miniLabel, GUILayout.Height(NavigationHeight));
                 GUILayout.Space(8);
@@ -2320,7 +2331,7 @@ namespace KaihenShelf
             }
             GUILayout.Space(6);
             historyScroll = EditorGUILayout.BeginScrollView(historyScroll);
-            foreach (var record in history.records.Skip(historyPage * HistoryPageSize).Take(HistoryPageSize))
+            foreach (var record in visibleRecords.Skip(historyPage * HistoryPageSize).Take(HistoryPageSize))
             {
                 using (new EditorGUILayout.VerticalScope(EditorStyles.helpBox))
                 {
@@ -2357,7 +2368,7 @@ namespace KaihenShelf
                 }
                 GUILayout.Space(3);
             }
-            if (history.records.Count == 0) GUILayout.Label("まだ履歴はありません。");
+            if (visibleRecords.Count == 0) GUILayout.Label(history.records.Count == 0 ? "まだ履歴はありません。" : "表示できる履歴はありません。");
             EditorGUILayout.EndScrollView();
         }
         void ChangeHistoryPage(int value)

@@ -28,7 +28,7 @@ namespace KaihenShelf
             AssemblyReloadEvents.beforeAssemblyReload += StopPreparation;
             EditorApplication.quitting += StopPreparation;
         }
-        public static void Begin(string source, string itemId, string target, string productName = "")
+        public static void Begin(string source, string itemId, string target, string productName = "", bool ageRestricted = false)
         {
             if (Busy) throw new InvalidOperationException("現在のインポートが終了するまでお待ちください。");
             string cache = Path.Combine(LocalStore.ProjectCacheRoot, "Staging");
@@ -39,10 +39,10 @@ namespace KaihenShelf
                 if (!string.IsNullOrEmpty(target)) SafePaths.Relative(target);
                 var prepared = DirectPackageStage.Prepare(source, cache, token);
                 if (token.IsCancellationRequested) { prepared.Cleanup(); token.ThrowIfCancellationRequested(); }
-                return new Prepared { stage = prepared, record = new ImportRecord { id = Guid.NewGuid().ToString("N"), itemId = itemId, productName = productName, source = source, cache = prepared.directory, target = "Assets/" + target, utc = DateTime.UtcNow.ToString("o"), status = "確認待ち" } };
+                return new Prepared { stage = prepared, record = new ImportRecord { id = Guid.NewGuid().ToString("N"), itemId = itemId, productName = productName, ageRestricted = ageRestricted, source = source, cache = prepared.directory, target = "Assets/" + target, utc = DateTime.UtcNow.ToString("o"), status = "確認待ち" } };
             }, token);
         }
-        public static void BeginBatch(string[] sources, string itemId, string target, string productName = "")
+        public static void BeginBatch(string[] sources, string itemId, string target, string productName = "", bool ageRestricted = false)
         {
             if (Busy) throw new InvalidOperationException("現在のインポートが終了するまでお待ちください。");
             var paths = sources.ToArray();
@@ -54,10 +54,10 @@ namespace KaihenShelf
                 if (!string.IsNullOrEmpty(target)) SafePaths.Relative(target);
                 var stage = BatchPackageStage.Prepare(paths, cache, token, allowChoices: true);
                 if (token.IsCancellationRequested) { stage.Cleanup(); token.ThrowIfCancellationRequested(); }
-                return new Prepared { stage = stage, record = new ImportRecord { itemId = itemId, productName = productName, target = "Assets/" + target } };
+                return new Prepared { stage = stage, record = new ImportRecord { itemId = itemId, productName = productName, ageRestricted = ageRestricted, target = "Assets/" + target } };
             }, token);
         }
-        public static void BeginTextures(string source, string itemId, string target, string shop, string productName = "")
+        public static void BeginTextures(string source, string itemId, string target, string shop, string productName = "", bool ageRestricted = false)
         {
             if (Busy) throw new InvalidOperationException("現在のインポートが終了するまでお待ちください。");
             string cache = Path.Combine(LocalStore.ProjectCacheRoot, "Staging");
@@ -68,7 +68,7 @@ namespace KaihenShelf
             {
                 var stage = TextureFolderStage.Prepare(source, assets, cache, target, shop, token);
                 if (token.IsCancellationRequested) { stage.Cleanup(); token.ThrowIfCancellationRequested(); }
-                return new Prepared { stage = stage, record = new ImportRecord { id = Guid.NewGuid().ToString("N"), itemId = itemId, productName = productName, source = source, cache = stage.directory, target = "Assets/", utc = DateTime.UtcNow.ToString("o"), status = "確認待ち" } };
+                return new Prepared { stage = stage, record = new ImportRecord { id = Guid.NewGuid().ToString("N"), itemId = itemId, productName = productName, ageRestricted = ageRestricted, source = source, cache = stage.directory, target = "Assets/", utc = DateTime.UtcNow.ToString("o"), status = "確認待ち" } };
             }, token);
         }
         static void StopPreparation()

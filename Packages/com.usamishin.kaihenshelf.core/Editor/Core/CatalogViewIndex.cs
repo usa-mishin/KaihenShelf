@@ -5,11 +5,14 @@ using System.Linq;
 
 namespace KaihenShelf
 {
+    public enum BoothAgeFilter { AllAges, Restricted, Unspecified }
+
     public sealed class CatalogFilter
     {
         public bool avatars, hideR18, favoritesOnly, freeOnly, excludeShared, excludeNoAvatar;
         public int category, sort;
-        public string search = "", shop = "", tag = "", avatarId = "";
+        public string search = "", shop = "", tag = "", avatarId = "", boothCategory = "";
+        public BoothAgeFilter age = BoothAgeFilter.Unspecified;
     }
 
     public sealed class CatalogGroup
@@ -39,19 +42,22 @@ namespace KaihenShelf
         {
             public bool avatars, hideR18, favoritesOnly, freeOnly, excludeShared, excludeNoAvatar;
             public int category, sort;
-            public string search, shop, tag, avatarId;
+            public string search, shop, tag, avatarId, boothCategory;
+            public BoothAgeFilter age;
             public FilterKey(CatalogFilter value)
             {
                 avatars = value.avatars; hideR18 = value.hideR18; favoritesOnly = value.favoritesOnly;
                 freeOnly = value.freeOnly; excludeShared = value.excludeShared; category = value.category; sort = value.sort;
                 excludeNoAvatar = value.excludeNoAvatar;
+                boothCategory = value.boothCategory ?? ""; age = value.age;
                 search = value.search ?? ""; shop = value.shop ?? ""; tag = value.tag ?? ""; avatarId = value.avatarId ?? "";
             }
             public bool Equals(FilterKey other)
             {
                 return avatars == other.avatars && hideR18 == other.hideR18 && favoritesOnly == other.favoritesOnly
                     && freeOnly == other.freeOnly && excludeShared == other.excludeShared && excludeNoAvatar == other.excludeNoAvatar && category == other.category && sort == other.sort
-                    && search == other.search && shop == other.shop && tag == other.tag && avatarId == other.avatarId;
+                    && search == other.search && shop == other.shop && tag == other.tag && avatarId == other.avatarId
+                    && boothCategory == other.boothCategory && age == other.age;
             }
         }
         readonly MatcherIndex matcher;
@@ -69,6 +75,7 @@ namespace KaihenShelf
         public string[] AvatarLabels { get; private set; }
         public string[] Shops { get; private set; }
         public string[] Tags { get; private set; }
+        public string[] BoothCategories { get; private set; }
 
         public CatalogViewIndex(LibraryState state)
         {
@@ -102,6 +109,8 @@ namespace KaihenShelf
             })).ToArray();
             Shops = entries.Select(x => x.item.shop).Where(x => !string.IsNullOrEmpty(x)).Distinct().OrderBy(x => x).ToArray();
             Tags = entries.Where(x => x.category != AssetCategory.Avatar).SelectMany(x => x.tags).Distinct().OrderBy(x => x).ToArray();
+            BoothCategories = entries.Where(x => x.category != AssetCategory.Avatar).Select(x => x.item.originalCategory)
+                .Where(x => !string.IsNullOrWhiteSpace(x)).Distinct().OrderBy(x => x).ToArray();
             foreach (bool hideRestricted in new[] { false, true })
             {
                 var shopGroups = new Dictionary<string, CatalogGroup>(StringComparer.Ordinal);
@@ -142,6 +151,8 @@ namespace KaihenShelf
         public AssetCategory Category(LibraryItem item) { return matcher.Category(item); }
         public string Scope(LibraryItem item) { return Category(item) == AssetCategory.Avatar ? "avatars" : "items"; }
         public LibraryItem Find(string id) { return matcher.Find(id); }
+        public bool IsHistoryVisible(string itemId, bool hideR18, bool recordedAgeRestricted = false)
+        { return !hideR18 || !(Find(itemId)?.ageRestricted ?? recordedAgeRestricted); }
         public bool IsFavorite(string scope, string key)
         { HashSet<string> values; return scope != null && favorites.TryGetValue(scope, out values) && values.Contains(key); }
 
@@ -180,6 +191,9 @@ namespace KaihenShelf
                 if (search.Length > 0 && entry.normalizedSearch.IndexOf(search, StringComparison.Ordinal) < 0) continue;
                 if (!key.avatars)
                 {
+                    if (key.boothCategory.Length > 0 && entry.item.originalCategory != key.boothCategory) continue;
+                    if (key.age == BoothAgeFilter.AllAges && entry.item.ageRestricted
+                        || key.age == BoothAgeFilter.Restricted && !entry.item.ageRestricted) continue;
                     if (key.category != 0 && (int)entry.category != key.category) continue;
                     if (key.shop.Length > 0 && entry.item.shop != key.shop) continue;
                     if (key.tag.Length > 0 && !entry.tags.Contains(key.tag)) continue;

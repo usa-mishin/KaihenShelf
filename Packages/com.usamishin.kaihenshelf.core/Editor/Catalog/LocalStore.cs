@@ -55,6 +55,7 @@ namespace KaihenShelf
         public string status;
         public string message;
         public string productName;
+        public bool ageRestricted;
         public int importedCount;
         public bool hasImportedCount;
         public string destinationFolder;

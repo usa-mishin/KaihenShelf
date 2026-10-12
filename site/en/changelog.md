@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.1.147
+
+- Added BOOTH category and age filters to Items & Assets. All-ages products are selected by default. The R18 visibility setting now also filters history counts and pagination without deleting records.
+
 ## 0.1.146
 
 - Renamed the refresh button to 最新データを取得して更新 (Fetch latest data and update) and updated the related instructions.

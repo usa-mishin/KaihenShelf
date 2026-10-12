@@ -67,6 +67,55 @@ static class CatalogIndexTests
 
     public static void Run(Action<string, Action> test)
     {
+        test("BOOTH category and age filters combine with app filters and invalidate cached results", () =>
+        {
+            var state = new LibraryState();
+            state.items.Add(new LibraryItem { id = "safe", category = AssetCategory.Hair, originalCategory = "3Dモデル > 3D衣装", shop = "Shop" });
+            state.items.Add(new LibraryItem { id = "adult", category = AssetCategory.Hair, originalCategory = "3Dモデル > 3D衣装", shop = "Shop", ageRestricted = true });
+            state.items.Add(new LibraryItem { id = "other", category = AssetCategory.Hair, originalCategory = "素材 > 画像", shop = "Other" });
+            state.items.Add(new LibraryItem { id = "manual", category = AssetCategory.Tool });
+            state.items.Add(new LibraryItem { id = "avatar", category = AssetCategory.Avatar, originalCategory = "3Dモデル > 3Dキャラクター", ageRestricted = true });
+            var index = new CatalogViewIndex(state);
+            Check(index.BoothCategories.SequenceEqual(new[] { "3Dモデル > 3D衣装", "素材 > 画像" }));
+            var filter = new CatalogFilter { age = BoothAgeFilter.AllAges };
+            Check(index.Query(filter).Count == 3);
+            filter.boothCategory = "3Dモデル > 3D衣装";
+            Check(Ids(index.Query(filter)).SequenceEqual(new[] { "safe" }));
+            filter.age = BoothAgeFilter.Restricted;
+            Check(Ids(index.Query(filter)).SequenceEqual(new[] { "adult" }));
+            filter.hideR18 = true;
+            Check(index.Query(filter).Count == 0, "global hiding must take precedence");
+            filter.age = BoothAgeFilter.Unspecified;
+            Check(index.Query(filter).Count == 1);
+            filter.hideR18 = false;
+            Check(index.Query(filter).Count == 2);
+            filter.category = (int)AssetCategory.Clothing;
+            Check(index.Query(filter).Count == 0, "BOOTH category is independent of manual/app classification");
+            filter.category = 0; filter.shop = "Other";
+            Check(index.Query(filter).Count == 0);
+            filter.shop = ""; filter.boothCategory = "素材 > 画像";
+            Check(Ids(index.Query(filter)).SequenceEqual(new[] { "other" }));
+            filter.avatars = true; filter.age = BoothAgeFilter.AllAges;
+            Check(Ids(index.Query(filter)).SequenceEqual(new[] { "avatar" }), "item-only filters must not leak into avatar page");
+        });
+        test("history age visibility hides before pagination and preserves unknown legacy records", () =>
+        {
+            var state = new LibraryState();
+            state.items.Add(new LibraryItem { id = "adult", ageRestricted = true });
+            state.items.Add(new LibraryItem { id = "safe" });
+            var index = new CatalogViewIndex(state);
+            Check(!index.IsHistoryVisible("adult", true));
+            Check(index.IsHistoryVisible("adult", false));
+            Check(index.IsHistoryVisible("safe", true));
+            Check(!index.IsHistoryVisible("removed", true, true));
+            Check(index.IsHistoryVisible("removed", false, true));
+            Check(index.IsHistoryVisible(null, true));
+            Check(index.IsHistoryVisible("safe", true, true), "current BOOTH data takes precedence over the saved snapshot");
+            var records = Enumerable.Range(0, 41).Select(i => i % 2 == 0 ? "adult" : "safe").ToList();
+            var visible = records.Where(id => index.IsHistoryVisible(id, true)).ToList();
+            Check(visible.Count == 20 && visible.Skip(0).Take(20).Count() == 20 && !visible.Skip(20).Any());
+            Check(records.Count == 41, "hiding must not delete history");
+        });
         test("no-avatar filtering distinguishes zero results from excluded shared-body results", () =>
         {
             var state = Fixture(0, 4);

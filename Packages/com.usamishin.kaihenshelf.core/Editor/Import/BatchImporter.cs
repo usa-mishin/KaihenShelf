@@ -48,7 +48,7 @@ namespace KaihenShelf
                 sourceCount++;
                 string folder = ImportHistoryUtility.CommonFolder(entries.Where(e => !e.asset.folder).Select(e => e.destination));
                 var record = new ImportRecord {
-                    id = Guid.NewGuid().ToString("N"), itemId = request.itemId, productName = request.productName,
+                    id = Guid.NewGuid().ToString("N"), itemId = request.itemId, productName = request.productName, ageRestricted = request.ageRestricted,
                     source = source.path, cache = stage.directory, target = request.target, utc = DateTime.UtcNow.ToString("o"),
                     status = "配置完了", importedCount = entries.Count(e => !e.asset.folder && changed.Contains(e.asset.guid)), hasImportedCount = true,
                     destinationFolder = folder, destinationFolderGuid = AssetDatabase.AssetPathToGUID(folder), message = "一括インポートで配置しました。"

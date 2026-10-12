@@ -12,6 +12,10 @@ Browse avatars or items and assets. Filter by name, shop, BOOTH tag, or compatib
 2. **Category tabs**: choose outfits, hair, textures, or another category.
 3. **Details (詳細)**: open the product's files in a separate window.
 
+In Items & Assets, **BOOTHカテゴリ** selects the registered category as "Category > Subcategory". **年齢制限** offers all-ages products (default), R18 products only, or no age filter. These filters use BOOTH metadata without adding classification rules.
+
+When **R18商品を一覧・履歴から非表示** is enabled in Display & Integration Settings, R18 products stay hidden regardless of the search filter. History counts and pagination also exclude them; the records are retained.
+
 ## Check the files
 
 Open the product detail window and switch between UnityPackages, textures, image source files, 3D data, and other files. Supported images show previews; source formats need a supported embedded preview. File cards can open files in your PC's default application.
