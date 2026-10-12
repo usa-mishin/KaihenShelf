@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.1.146
+
+- Renamed the refresh button to 最新データを取得して更新 (Fetch latest data and update) and updated the related instructions.
+
 ## 0.1.145
 
 - Default classification rules now exclude GLAY Unknown and DanaStudio from clothing and include them in hair. Existing saved rules are preserved.

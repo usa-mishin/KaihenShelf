@@ -1,4 +1,4 @@
-# KaihenShelf Unity Editor版 0.1.145
+# KaihenShelf Unity Editor版 0.1.146
 
 旧名称の版から更新すると、共通データは `%LOCALAPPDATA%/KaihenShelf/Unity`、プロジェクト内の履歴と画像は `UserSettings/KaihenShelf`、作業データは `Library/KaihenShelf` に移行します。保存済み画像への参照も更新します。書き換え前のJSONは `.before-kaihenshelf.bak` に保持します。新旧保存先が両方存在し、移行完了記録がない場合は上書きせず停止します。
 
@@ -28,7 +28,7 @@ Windows 10/11・Unity 2022.3 LTS向けのEditor拡張です。BOOTH Library Mana
 
 ## 手動で導入
 
-1. `KaihenShelf-0.1.145.unitypackage` をUnityの `Assets > Import Package > Custom Package` から導入します。
+1. `KaihenShelf-0.1.146.unitypackage` をUnityの `Assets > Import Package > Custom Package` から導入します。
 2. `KaihenShelf > KaihenShelf` を開きます。
 3. 読み取り・保存・通信範囲を確認し、同意して開始します。
 
@@ -36,7 +36,7 @@ UPM/VPM版との二重導入はしないでください。VRChat SDKなしでも
 
 ## 1. データを読み込む
 
-KaihenShelf > KaihenShelfから起動し、ポリシーを確認して同意すると、BOOTH Library Managerの商品を自動で読み込みます。商品が表示されるまでお待ちください。読み込めない場合は、表示・連携設定の「BOOTH Library Managerの保存場所（DB）」を確認し、左下の「データ再取得」を押してください。標準のDBは %APPDATA%\pm.booth.library-manager\data.db です。別の場所にある場合は「参照…」で選択します。商品の保存先はBOOTH Library ManagerのDB内の設定から取得します。
+KaihenShelf > KaihenShelfから起動し、ポリシーを確認して同意すると、BOOTH Library Managerの商品を自動で読み込みます。商品が表示されるまでお待ちください。読み込めない場合は、表示・連携設定の「BOOTH Library Managerの保存場所（DB）」を確認し、左下の「最新データを取得して更新」を押してください。標準のDBは %APPDATA%\pm.booth.library-manager\data.db です。別の場所にある場合は「参照…」で選択します。商品の保存先はBOOTH Library ManagerのDB内の設定から取得します。
 
 BOOTH Library Managerを使わない商品は「フォルダから追加登録」、未購入のアバターは「未購入アバター追加」から登録できます。
 
@@ -96,7 +96,7 @@ Projectの右クリック > KaihenShelf Image > フォルダ画像を設定か�
 
 ## 9. 再取得・困ったとき
 
-BOOTH Library Managerの商品情報の更新は左下の「データ再取得」で行います。BOOTHへのログインや商品ファイルのダウンロード、定期自動同期は行いません。ネット復旧後に画像が戻らない場合も「データ再取得」かウィンドウの開き直しで再試行できます。
+BOOTH Library Managerの商品情報の更新は左下の「最新データを取得して更新」で行います。BOOTHへのログインや商品ファイルのダウンロード、定期自動同期は行いません。ネット復旧後に画像が戻らない場合も「最新データを取得して更新」かウィンドウの開き直しで再試行できます。
 
 下部の通知は1行表示で、マウスを重ねると全文を確認できます。インポート後はUnityのConsoleも確認してください。容量不足や不正なパスなどで停止した場合は表示内容を確認し、長いパスはプロジェクトや配置先の名前を短くしてください。通常インポート済みアセットを後から整理・移動する機能はありません。
 

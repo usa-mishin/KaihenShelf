@@ -304,7 +304,7 @@ namespace KaihenShelf
             using (new EditorGUILayout.HorizontalScope(EditorStyles.toolbar))
             {
                 GUILayout.Label("KaihenShelf", EditorStyles.boldLabel);
-                GUILayout.FlexibleSpace(); GUILayout.Label("BOOTH Library Manager連携・非公式  |  0.1.145", EditorStyles.miniLabel);
+                GUILayout.FlexibleSpace(); GUILayout.Label("BOOTH Library Manager連携・非公式  |  0.1.146", EditorStyles.miniLabel);
             }
             using (new EditorGUILayout.HorizontalScope())
             {
@@ -317,7 +317,7 @@ namespace KaihenShelf
                     {
                         if (Clickable.LayoutButton("フォルダから追加登録")) AddFolder();
                         if (Clickable.LayoutButton("未購入アバター追加")) UnpurchasedWindow.Show(AddUnpurchased);
-                        if (Clickable.LayoutButton("データ再取得")) ReloadBlm();
+                        if (Clickable.LayoutButton("最新データを取得して更新")) ReloadBlm();
                     }
                 }
                 GUILayout.Space(6);
@@ -406,7 +406,7 @@ namespace KaihenShelf
                 catch (OperationCanceledException) { throw; }
                 catch (Exception ex)
                 {
-                    throw new InvalidOperationException("商品を読み込めませんでした。「表示・連携設定」でBOOTH Library Managerの保存場所（DB）を確認し、「データ再取得」を押してください。 " + ex.Message);
+                    throw new InvalidOperationException("商品を読み込めませんでした。「表示・連携設定」でBOOTH Library Managerの保存場所（DB）を確認し、「最新データを取得して更新」を押してください。 " + ex.Message);
                 }
             }, items =>
             {

@@ -14,7 +14,7 @@ Copy the repository URL from the installation guide and paste it into VCC or ALC
 
 ## Images are missing after reconnecting to the internet
 
-Click **データ再取得** (Reload data), or reopen the window to retry. Images cannot be shown if their original data or URLs are no longer available.
+Click **最新データを取得して更新** (Fetch latest data and update), or reopen the window to retry. Images cannot be shown if their original data or URLs are no longer available.
 
 ## Avatar detection is incorrect
 
